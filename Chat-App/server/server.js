@@ -16,6 +16,30 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
     console.log("A new user just connected");
 
+    //----------------------- socket is for only one user || io is for all users at the same time ---------------------------//
+    // Server make a new message and send it to the client
+    // every users that connect the sever ('localhost:3000') will be get this message when he'll connect.
+    socket.emit('newMessage', {
+        from: "Admin",
+        text: "Welcome to the chat app!",
+        createdAt: new Date().getTime()
+    })
+
+    socket.broadcast.emit('newMessage', {
+        from: "Admin",
+        text: "New user joined!",
+        createdAt: new Date().getTime()
+    })
+
+    socket.on('createMessage', (message) => {
+        console.log("createMessage", message);
+        io.emit('newMessage', {
+            from: message.from, 
+            text: message.text,
+            createdAt: new Date().getTime()
+        })
+    })
+
     socket.on('disconnect', () => {
         console.log("User was disconnected from server.");
     });
